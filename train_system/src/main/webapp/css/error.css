@@ -1,0 +1,23 @@
+.error {
+    width: 500px;
+    margin: 120px auto 260px;
+    height: 66px;
+    line-height: 33px;
+    min-height: 370px;
+}
+
+.error p {
+    line-height: 30px;
+    font-size: 16px;
+    color: #aaa;
+    font-weight: 600;
+    padding-top: 5px;
+}
+
+.error i {
+    font-size: 66px;
+    color: #cccccc;
+    display: block;
+    float: left;
+    margin-right: 10px;
+}

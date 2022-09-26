@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.train.dao.TrainChainMapper">
+    <resultMap id="TrainChainMap" type="com.train.pojo.TrainChain">
+        <result column="train_id" property="trainId"/>
+        <result column="check_ticket_id" property="checkTicketId"/>
+        <result column="late_time" property="lateTime"/>
+        <result column="station_name" property="stationName"/>
+        <result column="temp_begin_time" property="tempBeginTime"/>
+        <result column="temp_end_time" property="tempEndTime"/>
+        <result column="sum_time" property="sumTime"/>
+        <result column="temp_day" property="tempBeginDays"/>
+    </resultMap>
+    <select id="findAllTC" resultType="com.train.pojo.TrainChain" parameterType="String" resultMap="TrainChainMap">
+        select * from t_train_chain where train_id=#{trainId}
+    </select>
+    <select id="findOnceTC" resultType="com.train.pojo.TrainChain" parameterType="int" resultMap="TrainChainMap">
+        select * from t_train_chain where id=#{id}
+    </select>
+
+    <insert id="addTC" parameterType="com.train.pojo.TrainChain">
+        insert into t_train_chain(train_id,station_name,temp_begin_time,temp_end_time,sum_time,temp_day,check_ticket_id)
+        values (#{trainId},#{stationName},#{tempBeginTime},#{tempEndTime},#{sumTime},#{tempBeginDays},#{checkTicketId})
+    </insert>
+    <update id="setTC" parameterType="com.train.pojo.TrainChain" useGeneratedKeys="true" keyProperty="id">
+        update t_train_chain
+        set check_ticket_id=#{checkTicketId},late_time=#{lateTime}
+        where id=#{id}
+    </update>
+    <update id="setTCLate" parameterType="com.train.pojo.TrainChain" useGeneratedKeys="true" keyProperty="id">
+        update t_train_chain
+        set late_time=#{lateTime}
+        where id=#{id}
+    </update>
+    <delete id="deleteTC" parameterType="int">
+        delete from t_train_chain where id=#{id}
+    </delete>
+
+
+
+<!--    TrainDao临时内容，后期根据等效代码替换-->
+    <resultMap id="trainMap" type="com.train.pojo.Train">
+        <result column="train_id" property="trainId"/>
+        <result column="begin_time" property="beginTime"/>
+    </resultMap>
+    <resultMap id="checkTicketMap" type="com.train.pojo.CheckTicket">
+        <result column="check_ticket_name" property="name"/>
+        <result column="fk_station_id" property="stationName"/>
+    </resultMap>
+    <select id="findCTById" resultMap="checkTicketMap" parameterType="int" resultType="com.train.pojo.CheckTicket">
+        select * from t_check_ticket where check_ticket_id=#{id}
+    </select>
+    <select id="findCTByname" resultMap="TrainChainMap" parameterType="com.train.pojo.TrainChain" resultType="com.train.pojo.TrainChain">
+        select check_ticket_id from t_check_ticket where check_ticket_name=#{checkTicket} and fk_station_id = (select station_id from t_station where station_name=#{stationName} )
+    </select>
+    <select id="findCTByStationName" resultMap="checkTicketMap" parameterType="String" resultType="com.train.pojo.CheckTicket">
+        select * from t_check_ticket where fk_station_id = (select station_id from t_station where station_name=#{Name} )
+    </select>
+
+    <select id="findOnceTrain" resultType="com.train.pojo.Train" parameterType="String" resultMap="trainMap">
+        select * from t_train where train_id=#{trainId}
+    </select>
+    <select id="findAllTrain" resultType="com.train.pojo.Train" resultMap="trainMap">
+        select train_id from t_train
+    </select>
+
+
+    <resultMap id="stationMap" type="com.train.pojo.Station">
+        <result column="station_name" property="name"/>
+    </resultMap>
+    <select id="findAllStation" resultType="com.train.pojo.Station" resultMap="stationMap">
+        select station_name from t_station
+    </select>
+</mapper>

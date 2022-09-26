@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.train.dao.MoneyMapper">
+    <resultMap id="money_train_model" type="train">
+        <id property="trainId" column="train_id"/>
+        <result property="trainType" column="train_type"/>
+        <result property="beginStation" column="begin_station"/>
+        <result property="endStation" column="end_station"/>
+        <result property="beginTime" column="begin_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="times" column="times"/>
+        <result property="note" column="note"/>
+        <association property="ticketMoney" column="train_type" select="selectMoneyByTrainType"/>
+    </resultMap>
+
+    <resultMap id="money_model" type="ticketMoney">
+        <id property="trainType" column="train_type"/>
+        <result property="businessSeaMoney" column="business_seat_money"/>
+        <result property="firstSeatMoney" column="first_seat_money"/>
+        <result property="secondSeatMoney" column="second_seat_money"/>
+        <result property="softSleeperMoney" column="soft_sleeper_money"/>
+        <result property="hardSleeperMoney" column="hard_sleeper_money"/>
+        <result property="softSeatMoney" column="soft_seat_money"/>
+        <result property="hardSeatMoney" column="hard_seat_money"/>
+        <result property="noSeatMoney" column="no_seat_money"/>
+        <result property="otherMoney" column="other_money"/>
+    </resultMap>
+
+    <select id="selectMoneyByStartAndEnd" resultMap="money_train_model">
+        SELECT train_id, train_type, begin_station, end_station, begin_time, end_time, times, note
+        FROM t_train
+        WHERE begin_station IN
+              (
+                  SELECT station_name
+                  FROM t_station s, t_city c
+                  WHERE s.fk_cid = c.c_id AND c_name = #{fromStation}
+              )
+          AND end_station IN
+              (
+                  SELECT station_name
+                  FROM t_station s, t_city c
+                  WHERE s.fk_cid = c.c_id AND c_name = #{toStation}
+              )
+    </select>
+
+    <select id="selectMoneyByStartAndPass" resultMap="money_train_model">
+        SELECT t.train_id, t.train_type, t.begin_station, tc.station_name end_station,
+               begin_time, tc.temp_begin_time end_time, tc.sum_time times,
+               note
+        FROM t_train t, t_train_chain tc
+        WHERE tc.train_id = t.train_id AND t.begin_station IN
+               (
+                   SELECT station_name
+                   FROM t_station s, t_city c
+                   WHERE s.fk_cid = c.c_id AND c_name = #{fromStation}
+               )
+          AND station_name IN
+              (
+                  SELECT station_name
+                  FROM t_station s, t_city c
+                  WHERE s.fk_cid = c.c_id AND c_name = #{toStation}
+              )
+    </select>
+
+    <select id="selectMoneyByPassAndEnd" resultMap="money_train_model">
+        SELECT t.train_id, t.train_type, tc.station_name begin_station, end_station,
+               tc.temp_end_time begin_time, end_time, TIMEDIFF(t.end_time,begin_time) times,
+               note
+        FROM t_train t, t_train_chain tc
+        WHERE tc.train_id = t.train_id AND t.end_station IN
+               (
+                   SELECT station_name
+                   FROM t_station s, t_city c
+                   WHERE s.fk_cid = c.c_id AND c_name = #{toStation}
+               )
+          AND station_name IN
+              (
+                  SELECT station_name
+                  FROM t_station s, t_city c
+                  WHERE s.fk_cid = c.c_id AND c_name = #{fromStation}
+              )
+    </select>
+
+    <select id="selectMoneyBypassAndPass" resultMap="money_train_model">
+        SELECT t1.train_id, t.train_type, t1.station_name begin_station, t2.station_name end_station,
+               t1.temp_end_time begin_time, t2.temp_begin_time end_time, TIMEDIFF(t2.temp_begin_time,t1.temp_end_time) times,
+               note
+        FROM t_train_chain t1, t_train_chain t2, t_train t
+        WHERE t.train_id = t1.train_id AND t1.train_id = t2.train_id AND t1.station_name != t2.station_name AND t2.temp_begin_time > t1.temp_begin_time
+        AND t1.station_name IN
+            (
+                SELECT station_name
+                FROM t_station s, t_city c
+                WHERE s.fk_cid = c.c_id AND c_name = #{fromStation}
+            )
+        AND t2.station_name IN
+            (
+            SELECT station_name
+            FROM t_station s, t_city c
+            WHERE s.fk_cid = c.c_id AND c_name = #{toStation}
+            )
+    </select>
+    
+    <select id="selectMoneyByTrainType" resultMap="money_model">
+        SELECT *
+        FROM t_ticket_money
+        WHERE train_type = #{train_type}
+    </select>
+
+</mapper>

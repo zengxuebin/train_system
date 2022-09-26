@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.train.dao.QueryMapper">
+    <resultMap id="train_model" type="Train">
+        <id property="trainId" column="train_id"></id>
+        <result property="trainType" column="train_type"></result>
+        <result property="beginStation" column="begin_station"></result>
+        <result property="endStation" column="end_station"></result>
+        <result property="beginTime" column="begin_time"></result>
+        <result property="endTime" column="end_time"></result>
+        <result property="times" column="times"></result>
+        <result property="lateTime" column="late_time"></result>
+        <result property="note" column="note"></result>
+        <result property="checkTicket" column="check_ticket_id"></result>
+    </resultMap>
+    <select id="findTrainById" resultMap="train_model">
+        select *
+        from t_train
+        where train_id=#{train_id}
+    </select>
+
+    <resultMap id="TrainChain_model" type="TrainChain">
+        <id property="trainId" column="train_id"></id>
+        <result property="stationName" column="station_name"></result>
+        <result property="tempBeginTime" column="temp_begin_time"></result>
+        <result property="tempEndTime" column="temp_end_time"></result>
+        <result property="sumTime" column="sum_time"></result>
+        <result property="ticketMoney" column="ticket_id"></result>
+        <result property="checkTicket" column="check_ticket_id"></result>
+        <result property="lateTime" column="late_time"></result>
+    </resultMap>
+    <select id="findTrainChainByTrainAndStation" resultMap="TrainChain_model">
+        select *
+        from t_train_chain
+        where train_id=#{train_id} and station_name=#{station_name}
+    </select>
+
+    <resultMap id="CheckTicket_model" type="CheckTicket">
+        <id property="name" column="check_ticket_name"></id>
+        <result property="stationName" column="station_name"></result>
+    </resultMap>
+    <select id="findCheckTicketById" resultMap="CheckTicket_model">
+        SELECT check_ticket_name,station_name
+        FROM t_station s,t_check_ticket c
+        WHERE s.station_id = c.fk_station_id AND c.check_ticket_id =#{id}
+    </select>
+
+
+    <resultMap id="TrainRun_model" type="TrainRun">
+        <id property="trainId" column="fk_train_id"></id>
+        <result property="runDate" column="run_date"></result>
+    </resultMap>
+    <select id="findTrainRunByDateAndTrainId" resultMap="TrainRun_model">
+        select run_date,fk_train_id
+        from t_train_run
+        where run_date=#{date} and fk_train_id=#{id}
+    </select>
+
+
+    
+    <resultMap id="Station_model" type="Station">
+        <id property="name" column="station_name"></id>
+        <result property="cityName" column="c_name"></result>
+        <result property="ticketStartSell" column="ticket_start_sell"></result>
+    </resultMap>
+    <select id="findStationByCityName" resultMap="Station_model">
+        SELECT station_name,ticket_start_sell,c_name
+        FROM t_station s,t_city c
+        WHERE s.fk_cid=c.c_id AND c.c_name = #{cityName}
+    </select>
+
+    <select id="findTrainChainByTrainId" resultMap="TrainChain_model">
+        select *
+        from t_train_chain
+        where train_id=#{train_id}
+    </select>
+
+    <select id="findTrainByBeginStationName" resultMap="train_model">
+        select *
+        from t_train
+        where begin_station=#{stationName}
+    </select>
+
+    <select id="findTrainByEndStationName" resultMap="train_model">
+        select *
+        from t_train
+        where end_station=#{stationName}
+    </select>
+
+
+    <select id="findTrainIdByBeginStationName" resultType="String">
+        select train_id
+        from t_train
+        where begin_station=#{stationName}
+    </select>
+
+
+    <select id="findTrainIdByEndStationName" resultType="String">
+        select train_id
+        from t_train
+        where end_station=#{stationName}
+    </select>
+
+
+    <select id="findTrainIdInChainByBeginStationName" resultType="String">
+        select train_id
+        from t_train_chain
+        where station_name=#{stationName}
+    </select>
+
+    <select id="findTrainIdInChainByEndStationName" resultType="String">
+        select train_id
+        from t_train_chain
+        where station_name=#{stationName}
+    </select>
+
+    <select id="findTrainChainByStation" resultMap="TrainChain_model">
+        select *
+        from t_train_chain
+        where station_name=#{stationName}
+    </select>
+
+
+    <resultMap id="price_model" type="TicketMoney">
+        <id property="trainId" column="train_id"></id>
+        <result property="businessSeaMoney" column="business_seat_money"></result>
+        <result property="firstSeatMoney" column="first_seat_money"></result>
+        <result property="secondSeatMoney" column="second_seat_money"></result>
+        <result property="softSleeperMoney" column="soft_sleeper_money"></result>
+        <result property="hardSleeperMoney" column="hard_sleeper_money"></result>
+        <result property="softSeatMoney" column="soft_seat_money"></result>
+        <result property="hardSeatMoney" column="hard_seat_money"></result>
+        <result property="noSeatMoney" column="no_seat_money"></result>
+        <result property="otherMoney" column="other_money"></result>
+    </resultMap>
+    <select id="findPriceByTrainId" resultMap="price_model">
+        select *
+        from t_ticket_money
+        where train_id=#{trainId}
+    </select>
+</mapper>

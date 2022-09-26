@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.train.dao.ITrainMapper">
+    <!--    列车信息增删改查-->
+    <resultMap id="trainListMap" type="Train">
+        <id column="train_id" property="trainId"></id>
+        <result column="train_type" property="trainType"></result>
+        <result column="begin_station" property="beginStation"></result>
+        <result column="end_station" property="endStation"></result>
+        <result column="begin_time" property="beginTime"></result>
+        <result column="end_time" property="endTime"></result>
+        <result column="times" property="times"></result>
+        <result column="late_time" property="lateTime"></result>
+        <result column="check_ticket_id" property="checkTicket"></result>
+        <result column="note" property="note"></result>
+    </resultMap>
+
+    <select id="findAllTrains" resultType="Train" resultMap="trainListMap">
+        select *
+        from t_train
+    </select>
+
+    <select id="findTrainById" resultType="Train" resultMap="trainListMap">
+        select *
+        from t_train
+        where train_id = #{trainId}
+    </select>
+
+    <insert id="addTrain" parameterType="Train">
+        insert into t_train(train_id, train_type, begin_station,end_station, begin_time, end_time, times, late_time,
+                            check_ticket_id, note)
+        values (#{trainId}, #{trainType}, #{beginStation}, #{endStation},
+                #{beginTime}, #{endTime}, #{times}, #{lateTime}, #{checkTicket}, #{note})
+    </insert>
+
+    <update id="updateTrain" parameterType="Train">
+        update t_train
+        set train_type=#{trainType},
+            begin_station=#{beginStation},
+            end_station=#{endStation},
+            begin_time=#{beginTime},
+            end_time=#{endTime},
+            times=#{times},
+            late_time=#{lateTime},
+            check_ticket_id=#{checkTicket},
+            note=#{note}
+        where train_id = #{trainId}
+    </update>
+
+    <delete id="deleteTrainById">
+        delete
+        from t_train
+        where train_id = #{trainId}
+    </delete>
+</mapper>
